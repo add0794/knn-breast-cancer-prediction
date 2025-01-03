@@ -13,21 +13,33 @@ classifier.load_data()
 classifier.split_and_scale_data()
 
 # Run analysis on accuracy and f1 scores
-train_acc, test_acc = classifier.evaluate_knn(metric='accuracy', max_k=50)
-best_k_acc, differences_acc = classifier.find_best_k(train_acc, test_acc)
-acc = pd.DataFrame()
-acc['train_acc'] = train_acc
-acc['test_acc'] = test_acc
-acc['differences_acc'] = differences_acc
-print(acc.head())
+# train_acc, test_acc = classifier.evaluate_knn(metric='accuracy', max_k=50)
+# best_k_acc = classifier.find_best_k(train_acc, test_acc)
+# acc = pd.DataFrame()
+# acc['train_acc'] = train_acc
+# acc['test_acc'] = test_acc
+# acc['differences_acc'] = differences_acc
+# print(acc.head())
+# print(f'Using differences in accuracy between training and test sets, the optimal k value is {best_k_acc}')
 
-train_f1, test_f1 = classifier.evaluate_knn(metric='f1', max_k=50)
-best_k_f1, differences_f1 = classifier.find_best_k(train_f1, test_f1)
-f1 = pd.DataFrame()
-f1['train_f1'] = train_f1
-f1['test_f1'] = test_f1
-f1['differences_f1'] = differences_f1
-print(f1.head())
+# train_f1, test_f1 = classifier.evaluate_knn(metric='f1', max_k=50)
+# best_k_f1 = classifier.find_best_k(train_f1, test_f1)
+# f1 = pd.DataFrame()
+# f1['train_f1'] = train_f1
+# f1['test_f1'] = test_f1
+# f1['differences_f1'] = differences_f1
+# print(f1.head())
+# print(f'Using differences in FI score between training and test sets, the optimal k value is {best_k_f1}')
+
+df_acc = classifier.evaluate_knn('accuracy', 50)
+print(df_acc)
+best_acc_k = classifier.find_best_k(df_acc, df_acc['Train Score'])
+print(f'Using differences in accuracy between training and test sets, the optimal k value is {best_acc_k}')
+
+df_f1 = classifier.evaluate_knn('f1', 50)
+print(df_f1)
+best_f1_k = classifier.find_best_k(df_f1, df_f1['Test Score'])
+print(f'Using differences in FI score between training and test sets, the optimal k value is {best_f1_k}')
 
 # Cross-validation
 k_range = range(1, 50)
@@ -48,4 +60,4 @@ print(y_pred_series_sim.head())
 print(classifier.metrics())
 print(classifier.conf_matrix())
 
-classifier.plot_results(differences_acc, cv_scores, k_range)
+classifier.plot_results(df_acc['differences'], cv_scores, k_range)

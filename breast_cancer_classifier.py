@@ -44,6 +44,29 @@ class BreastCancerClassifier:
         self.X_train = self.scaler.fit_transform(self.X_train)
         self.X_test = self.scaler.transform(self.X_test)
         
+    # def evaluate_knn(self, metric, max_k):
+    #     """Evaluate KNN with different k values using specified metric"""
+    #     train_scores = []
+    #     test_scores = []
+        
+    #     for k in range(1, max_k + 1):
+    #         knn = KNeighborsClassifier(n_neighbors=k)
+    #         knn.fit(self.X_train, self.y_train)
+            
+    #         train_pred = knn.predict(self.X_train)
+    #         test_pred = knn.predict(self.X_test)
+            
+    #         if metric == 'accuracy':
+    #             score_func = accuracy_score
+    #         elif metric == 'f1':
+    #             score_func = lambda y_true, y_pred: f1_score(y_true, y_pred, average='macro')
+                
+    #         train_scores.append(score_func(self.y_train, train_pred))
+    #         test_scores.append(score_func(self.y_test, test_pred))
+    #         self.differences = [abs(train - test) for train, test in zip(train_scores, test_scores)]
+            
+    #     return train_scores, test_scores
+
     def evaluate_knn(self, metric, max_k):
         """Evaluate KNN with different k values using specified metric"""
         train_scores = []
@@ -59,19 +82,36 @@ class BreastCancerClassifier:
             if metric == 'accuracy':
                 score_func = accuracy_score
             elif metric == 'f1':
-                score_func = lambda y_true, y_pred: f1_score(y_true, y_pred, average='macro')
-                
+                score_func = f1_score
+            
             train_scores.append(score_func(self.y_train, train_pred))
             test_scores.append(score_func(self.y_test, test_pred))
+            self.differences = [abs(train - test) for train, test in zip(train_scores, test_scores)]
             
-        return train_scores, test_scores
+        df = pd.DataFrame({'Train Score': train_scores, 'Test Score': test_scores})
+        df['differences'] = [abs(train - test) for train, test in zip(train_scores, test_scores)]       
+
+        return df
     
     def find_best_k(self, train_scores, test_scores):
-        """Find best k value based on smallest difference between train and test scores"""
-        differences = [abs(train - test) for train, test in zip(train_scores, test_scores)]
-        best_k = differences.index(min(differences)) + 1
-        return best_k, differences
+        """Find best k value based on smallest difference between train and 
+    test scores"""
+        # best_k = min(self.differences).argmin() + 1
+        best_k = self.differences.index(min(self.differences)) + 1
+        return best_k
     
+    # def find_best_k(self, train_scores, test_scores):
+    #     """Find best k value based on smallest difference between train and test scores"""
+    #     # best_k = self.differences.index(min(self.differences)) + 1
+    #     best_k = min(self.differences).index(min(self.differences)) + 1
+    #     return best_k
+    
+    # def find_best_k(self, train_scores, test_scores):
+    #     """Find best k value based on smallest difference between train and test scores"""
+    #     differences = [abs(train - test) for train, test in zip(train_scores, test_scores)]
+    #     min_diff_index = differences.index(min(differences))
+    #     return min_diff_index + 1
+
     def cross_validate(self, k_range):
         """Perform cross-validation for different k values"""
         cv_scores = []
